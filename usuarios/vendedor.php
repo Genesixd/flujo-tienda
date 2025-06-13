@@ -24,7 +24,10 @@ $result = $conn->query($query);
 ?>
 
 <h2>📋 Tareas pendientes - VENDEDOR</h2>
-
+<!-- Nueva opción de menú -->
+<p>
+    <a href="../procesos/apruebaDevolucion.php">📥 Ver solicitudes de devolución</a>
+</p>
 <?php if ($result->num_rows > 0): ?>
 <table border="1" cellpadding="5">
     <tr>

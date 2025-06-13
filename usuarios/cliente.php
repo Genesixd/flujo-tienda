@@ -13,4 +13,6 @@ if ($_SESSION["rol"] !== "CLIENTE") {
   <li><a href="../procesos/seleccionaProducto.php">🛒 Hacer nuevo pedido</a></li>
   <li><a href="mis_pedidos.php">📋 Ver mis pedidos</a></li>
   <li><a href="../logout.php">🔙 Cerrar sesión</a></li>
+  <li><a href="../procesos/solicitaDevolucion.php">🔁 Solicitar devolución</a></li>
+
 </ul>
