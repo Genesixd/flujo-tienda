@@ -26,6 +26,8 @@ $result = $conn->query($query);
 <h2>🏬 Tareas pendientes - ALMACÉN</h2>
 <p>
     <a href="../procesos/recibeProducto.php">📦 Ver devoluciones aprobadas</a>
+    <a href="../procesos/solicitaCompra.php">🛒 Solicitar compra a proveedor</a>
+    <a href="../procesos/recibeCompra.php">📦 Confirmar recepción de productos</a>
 </p>
 
 <?php if ($result->num_rows > 0): ?>

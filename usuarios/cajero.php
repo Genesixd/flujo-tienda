@@ -27,6 +27,7 @@ $result = $conn->query($query);
 <h2>💰 Tareas pendientes - CAJERO</h2>
 <p>
     <a href="../procesos/procesaReembolso.php">💸 Reembolsar devoluciones</a>
+    <a href="../procesos/pagaProveedor.php">💰 Pagar al proveedor</a>
 </p>
 <?php if ($result->num_rows > 0): ?>
 <table border="1" cellpadding="5">

@@ -27,6 +27,7 @@ $result = $conn->query($query);
 <!-- Nueva opción de menú -->
 <p>
     <a href="../procesos/apruebaDevolucion.php">📥 Ver solicitudes de devolución</a>
+    <a href="../procesos/apruebaCompra.php">📋 Aprobar compras solicitadas</a>
 </p>
 <?php if ($result->num_rows > 0): ?>
 <table border="1" cellpadding="5">
