@@ -12,6 +12,17 @@ if (!$nrotramite) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
     exit;
 }
+// Verificar si ya fue atendido
+$verifica = $conn->query("
+    SELECT 1 FROM flujoseguimiento
+    WHERE nro_tramite = $nrotramite AND proceso = 'verificaStock'
+    LIMIT 1
+");
+if ($verifica->num_rows > 0) {
+    echo "<p style='color:orange;'>⚠️ Este trámite ya fue atendido por ALMACÉN.</p>";
+    echo "<p><a href='../usuarios/almacen.php'>⬅️ Volver al panel</a></p>";
+    exit;
+}
 
 $query = "
     SELECT p.id AS producto_id, p.nombre, p.stock, d.cantidad

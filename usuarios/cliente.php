@@ -1,12 +1,16 @@
 <?php
 session_start();
 
-// Verificar rol
 if ($_SESSION["rol"] !== "CLIENTE") {
-    echo "Acceso denegado.";
+    echo "<p style='color:red;'>❌ Acceso denegado.</p>";
     exit;
 }
+?>
 
-// Redirige al inicio del flujo
-header("Location: ../procesos/seleccionaProducto.php");
-exit;
+<h2>👤 Bienvenido, <?= $_SESSION["usuario"] ?> (Cliente)</h2>
+
+<ul>
+  <li><a href="../procesos/seleccionaProducto.php">🛒 Hacer nuevo pedido</a></li>
+  <li><a href="mis_pedidos.php">📋 Ver mis pedidos</a></li>
+  <li><a href="../logout.php">🔙 Cerrar sesión</a></li>
+</ul>

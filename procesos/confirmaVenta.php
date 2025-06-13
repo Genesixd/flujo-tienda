@@ -14,6 +14,18 @@ if (!$nrotramite) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
     exit;
 }
+// Verificar si el trámite ya fue atendido por el vendedor
+$verifica = $conn->query("
+    SELECT 1 FROM flujoseguimiento
+    WHERE nro_tramite = $nrotramite AND proceso = 'confirmaVenta'
+    LIMIT 1
+");
+
+if ($verifica->num_rows > 0) {
+    echo "<p style='color:orange;'>⚠️ Este trámite ya fue atendido por el VENDEDOR.</p>";
+    echo "<p><a href='../usuarios/vendedor.php'>⬅️ Volver al panel</a></p>";
+    exit;
+}
 
 // Cargar detalle del pedido
 $query = "

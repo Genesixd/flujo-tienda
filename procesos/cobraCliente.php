@@ -12,6 +12,17 @@ if (!$nrotramite) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
     exit;
 }
+// Verificar si ya fue atendido
+$verifica = $conn->query("
+    SELECT 1 FROM flujoseguimiento
+    WHERE nro_tramite = $nrotramite AND proceso = 'cobraCliente'
+    LIMIT 1
+");
+if ($verifica->num_rows > 0) {
+    echo "<p style='color:orange;'>⚠️ Este trámite ya fue cobrado por el CAJERO.</p>";
+    echo "<p><a href='../usuarios/cajero.php'>⬅️ Volver al panel</a></p>";
+    exit;
+}
 
 $query = "
     SELECT p.nombre, p.precio, d.cantidad, (p.precio * d.cantidad) AS total
@@ -37,7 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->query("UPDATE tramite SET estado = 'FINALIZADO' WHERE nro_tramite = $nrotramite");
 
     echo "<h3 style='color:green;'>✅ Trámite finalizado correctamente.</h3>";
+   echo "<p><a href='generar_comprobante.php?nro=$nrotramite' target='_blank'>📄 Descargar comprobante en PDF</a></p>";
     echo "<p><a href='../usuarios/cajero.php'>🔄 Volver al panel</a></p>";
+    
     exit;
 }
 ?>
