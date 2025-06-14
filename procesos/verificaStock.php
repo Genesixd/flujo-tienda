@@ -2,25 +2,26 @@
 session_start();
 include "../conectar.inc.php";
 
+// Control de acceso desde flujo
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (!isset($_SESSION['desde_flujo']) || $_SESSION['desde_flujo'] !== true) {
+        echo "<p style='color:red;'>❌ Acceso denegado. Debes ingresar desde flujo.php.</p>";
+        exit;
+    }
+}
+
 if ($_SESSION["rol"] !== "ALMACEN") {
     echo "<p style='color:red;'>❌ Acceso denegado.</p>";
     exit;
 }
 
-$nrotramite = $_GET["nro"] ?? null;
+$flujo = $_GET["flujo"] ?? '';
+$nrotramite = $_GET["nrotramite"] ?? $_SESSION["nrotramite"] ?? null;
+
+$_SESSION["nrotramite"] = $nrotramite;
+
 if (!$nrotramite) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
-    exit;
-}
-// Verificar si ya fue atendido
-$verifica = $conn->query("
-    SELECT 1 FROM flujoseguimiento
-    WHERE nro_tramite = $nrotramite AND proceso = 'verificaStock'
-    LIMIT 1
-");
-if ($verifica->num_rows > 0) {
-    echo "<p style='color:orange;'>⚠️ Este trámite ya fue atendido por ALMACÉN.</p>";
-    echo "<p><a href='../usuarios/almacen.php'>⬅️ Volver al panel</a></p>";
     exit;
 }
 
@@ -39,27 +40,6 @@ if (!$pedido) {
 
 $stock = $pedido["stock"];
 $solicitado = $pedido["cantidad"];
-$producto_id = $pedido["producto_id"];
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_SESSION["usuario"];
-    $fecha = date("Y-m-d H:i:s");
-
-    if ($stock >= $solicitado) {
-        $nuevoStock = $stock - $solicitado;
-        $conn->query("UPDATE producto SET stock = $nuevoStock WHERE id = $producto_id");
-
-        $conn->query("INSERT INTO flujoseguimiento (nro_tramite, flujo, proceso, usuario, fecha, observacion)
-                      VALUES ($nrotramite, 'F1_venta_cliente', 'verificaStock', '$usuario', '$fecha', 'Stock verificado')");
-
-        echo "<p style='color:green;'>✅ Stock verificado. El trámite pasa al CAJERO.</p>";
-    } else {
-        echo "<p style='color:red;'>❌ Stock insuficiente. Informe al vendedor para modificar el pedido.</p>";
-    }
-
-    echo "<p><a href='../usuarios/almacen.php'>🔄 Volver al panel</a></p>";
-    exit;
-}
 ?>
 
 <h2>📦 Verificación de Stock - Trámite #<?= $nrotramite ?></h2>
@@ -67,7 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <p><strong>Stock disponible:</strong> <?= $stock ?></p>
 <p><strong>Solicitado:</strong> <?= $solicitado ?></p>
 
-<form method="POST">
+<form method="POST" action="../controlador.php">
+    <input type="hidden" name="flujo" value="<?= $flujo ?>">
+    <input type="hidden" name="proceso" value="verificaStock">
+    <input type="hidden" name="nrotramite" value="<?= $nrotramite ?>">
+    <input type="hidden" name="producto_id" value="<?= $pedido['producto_id'] ?>">
+    <input type="hidden" name="stock" value="<?= $stock ?>">
+    <input type="hidden" name="cantidad" value="<?= $solicitado ?>">
     <input type="submit" value="Verificar y Descontar Stock">
 </form>
 

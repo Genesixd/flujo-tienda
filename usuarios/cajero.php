@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SESSION["rol"] !== "CAJERO") {
-    echo "<p style='color:red;'>❌ Acceso denegado.</p>";
+    echo "<div class='error'>❌ Acceso denegado.</div>";
     exit;
 }
 
@@ -24,30 +24,47 @@ ORDER BY t.nro_tramite DESC
 $result = $conn->query($query);
 ?>
 
-<h2>💰 Tareas pendientes - CAJERO</h2>
-<p>
-    <a href="../procesos/procesaReembolso.php">💸 Reembolsar devoluciones</a>
-    <a href="../procesos/pagaProveedor.php">💰 Pagar al proveedor</a>
-</p>
-<?php if ($result->num_rows > 0): ?>
-<table border="1" cellpadding="5">
-    <tr>
-        <th>N° Trámite</th>
-        <th>Cliente</th>
-        <th>Acción</th>
-    </tr>
-    <?php while ($row = $result->fetch_assoc()): ?>
-    <tr>
-        <td><?= $row['nro_tramite'] ?></td>
-        <td><?= $row['cliente'] ?></td>
-        <td>
-            <a href="../procesos/cobraCliente.php?nro=<?= $row['nro_tramite'] ?>">🧾 Atender</a>
-        </td>
-    </tr>
-    <?php endwhile; ?>
-</table>
-<?php else: ?>
-    <p>No hay tareas pendientes por ahora.</p>
-<?php endif; ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Cajero</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
 
-<p><a href="../logout.php">🔙 Cerrar sesión</a></p>
+<div class="panel-cajero">
+    <h2>💰 Tareas pendientes - CAJERO</h2>
+
+    <p>
+        <a href="../procesos/procesaReembolso.php">💸 Reembolsar devoluciones</a> |
+        <a href="../procesos/pagaProveedor.php">💰 Pagar al proveedor</a>
+    </p>
+
+    <?php if ($result->num_rows > 0): ?>
+        <table>
+            <tr>
+                <th>N° Trámite</th>
+                <th>Cliente</th>
+                <th>Acción</th>
+            </tr>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $row['nro_tramite'] ?></td>
+                    <td><?= $row['cliente'] ?></td>
+                    <td>
+                       <a href="../flujo.php?flujo=F1_venta_cliente&proceso=cobraCliente&nrotramite=<?= $row['nro_tramite'] ?>">🧾 Atender</a>
+
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+    <?php else: ?>
+        <div class="warning">⚠️ No hay tareas pendientes por ahora.</div>
+    <?php endif; ?>
+
+    <p><a href="../logout.php">🔙 Cerrar sesión</a></p>
+</div>
+
+</body>
+</html>

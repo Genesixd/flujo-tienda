@@ -2,17 +2,28 @@
 session_start();
 include "../conectar.inc.php";
 
+// Acceso desde flujo
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (!isset($_SESSION['desde_flujo']) || $_SESSION['desde_flujo'] !== true) {
+        echo "<p style='color:red;'>❌ Acceso denegado. Debes ingresar desde flujo.php.</p>";
+        exit;
+    }
+}
+
 if ($_SESSION["rol"] !== "CAJERO") {
     echo "<p style='color:red;'>❌ Acceso denegado.</p>";
     exit;
 }
 
-$nrotramite = $_GET["nro"] ?? null;
+$flujo = $_GET["flujo"] ?? '';
+$nrotramite = $_GET["nrotramite"] ?? $_SESSION["nrotramite"] ?? null;
+$_SESSION["nrotramite"] = $nrotramite;
+
 if (!$nrotramite) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
     exit;
 }
-// Verificar si ya fue atendido
+
 $verifica = $conn->query("
     SELECT 1 FROM flujoseguimiento
     WHERE nro_tramite = $nrotramite AND proceso = 'cobraCliente'
@@ -36,23 +47,6 @@ if (!$pedido) {
     echo "<p style='color:red;'>❌ No se encontró información del pedido.</p>";
     exit;
 }
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $metodo = $_POST["metodo_pago"];
-    $usuario = $_SESSION["usuario"];
-    $fecha = date("Y-m-d H:i:s");
-
-    $conn->query("INSERT INTO flujoseguimiento (nro_tramite, flujo, proceso, usuario, fecha, observacion)
-                  VALUES ($nrotramite, 'F1_venta_cliente', 'cobraCliente', '$usuario', '$fecha', 'Pago $metodo')");
-
-    $conn->query("UPDATE tramite SET estado = 'FINALIZADO' WHERE nro_tramite = $nrotramite");
-
-    echo "<h3 style='color:green;'>✅ Trámite finalizado correctamente.</h3>";
-   echo "<p><a href='generar_comprobante.php?nro=$nrotramite' target='_blank'>📄 Descargar comprobante en PDF</a></p>";
-    echo "<p><a href='../usuarios/cajero.php'>🔄 Volver al panel</a></p>";
-    
-    exit;
-}
 ?>
 
 <h2>💵 Cobro - Trámite #<?= $nrotramite ?></h2>
@@ -60,13 +54,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <p><strong>Cantidad:</strong> <?= $pedido['cantidad'] ?></p>
 <p><strong>Total:</strong> Bs <?= number_format($pedido['total'], 2) ?></p>
 
-<form method="POST">
+<form method="POST" action="../controlador.php">
+    <input type="hidden" name="flujo" value="<?= $flujo ?>">
+    <input type="hidden" name="proceso" value="cobraCliente">
+    <input type="hidden" name="nrotramite" value="<?= $nrotramite ?>">
+
     <label>Método de Pago:</label>
     <select name="metodo_pago" required>
         <option value="EFECTIVO">Efectivo</option>
         <option value="QR">QR</option>
         <option value="TARJETA">Tarjeta</option>
     </select><br><br>
+
     <input type="submit" value="Confirmar pago y finalizar venta">
 </form>
 

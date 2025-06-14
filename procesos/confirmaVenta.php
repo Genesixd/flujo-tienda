@@ -2,19 +2,34 @@
 session_start();
 include "../conectar.inc.php";
 
-// Verificar que sea VENDEDOR
+// Verificar acceso desde flujo.php usando la sesión
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (!isset($_SESSION['desde_flujo']) || $_SESSION['desde_flujo'] !== true) {
+        echo "<p style='color:red;'>❌ Acceso denegado. Debes ingresar desde <code>flujo.php</code>.</p>";
+        exit;
+    }
+}
+
+
+// Obtener datos necesarios
+$flujo = $_GET["flujo"] ?? '';
+$nrotramite = $_GET["nrotramite"] ?? $_SESSION["nrotramite"] ?? null;
+
+// Validar sesión y rol
 if ($_SESSION["rol"] !== "VENDEDOR") {
-    echo "<p style='color:red;'>❌ Acceso denegado.</p>";
+    echo "<p style='color:red;'>❌ Acceso denegado. Solo VENDEDOR puede confirmar ventas.</p>";
     exit;
 }
 
-// Obtener nro_tramite desde GET
-$nrotramite = $_GET["nro"] ?? null;
-if (!$nrotramite) {
+if (!$nrotramite || !is_numeric($nrotramite)) {
     echo "<p style='color:red;'>❌ Trámite no especificado.</p>";
     exit;
 }
-// Verificar si el trámite ya fue atendido por el vendedor
+
+// Guardar para siguientes pasos
+$_SESSION["nrotramite"] = $nrotramite;
+
+// Verificar si ya fue atendido
 $verifica = $conn->query("
     SELECT 1 FROM flujoseguimiento
     WHERE nro_tramite = $nrotramite AND proceso = 'confirmaVenta'
@@ -27,7 +42,7 @@ if ($verifica->num_rows > 0) {
     exit;
 }
 
-// Cargar detalle del pedido
+// Cargar datos del pedido
 $query = "
     SELECT p.nombre, p.precio, d.cantidad, (p.precio * d.cantidad) AS total
     FROM detalle_pedido d
@@ -40,19 +55,6 @@ if (!$pedido) {
     echo "<p style='color:red;'>❌ No se encontró información del trámite.</p>";
     exit;
 }
-
-// Procesar confirmación
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = $_SESSION["usuario"];
-    $fecha = date("Y-m-d H:i:s");
-
-    $conn->query("INSERT INTO flujoseguimiento (nro_tramite, flujo, proceso, usuario, fecha, observacion)
-                  VALUES ($nrotramite, 'F1_venta_cliente', 'confirmaVenta', '$usuario', '$fecha', 'Venta confirmada por vendedor')");
-
-    echo "<p style='color:green;'>✅ Venta confirmada correctamente. Este trámite ahora es tarea del ALMACÉN.</p>";
-    echo "<p><a href='../usuarios/vendedor.php'>🔄 Volver al panel de tareas</a></p>";
-    exit;
-}
 ?>
 
 <h2>✅ Confirmación de Venta - Trámite #<?= $nrotramite ?></h2>
@@ -60,7 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <p><strong>Cantidad:</strong> <?= $pedido['cantidad'] ?></p>
 <p><strong>Total:</strong> Bs <?= number_format($pedido['total'], 2) ?></p>
 
-<form method="POST">
+<form method="POST" action="../controlador.php">
+    <input type="hidden" name="flujo" value="<?= $flujo ?>">
+    <input type="hidden" name="proceso" value="confirmaVenta">
+    <input type="hidden" name="nrotramite" value="<?= $nrotramite ?>">
     <input type="submit" value="Confirmar venta">
 </form>
 

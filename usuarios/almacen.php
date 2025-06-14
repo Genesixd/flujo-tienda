@@ -3,7 +3,7 @@ session_start();
 include "../conectar.inc.php";
 
 if ($_SESSION["rol"] !== "ALMACEN") {
-    echo "<p style='color:red;'>❌ Acceso denegado.</p>";
+    echo "<div class='error'>❌ Acceso denegado.</div>";
     exit;
 }
 
@@ -23,32 +23,48 @@ ORDER BY t.nro_tramite DESC
 $result = $conn->query($query);
 ?>
 
-<h2>🏬 Tareas pendientes - ALMACÉN</h2>
-<p>
-    <a href="../procesos/recibeProducto.php">📦 Ver devoluciones aprobadas</a>
-    <a href="../procesos/solicitaCompra.php">🛒 Solicitar compra a proveedor</a>
-    <a href="../procesos/recibeCompra.php">📦 Confirmar recepción de productos</a>
-</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Almacén</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
 
-<?php if ($result->num_rows > 0): ?>
-<table border="1" cellpadding="5">
-    <tr>
-        <th>N° Trámite</th>
-        <th>Cliente</th>
-        <th>Acción</th>
-    </tr>
-    <?php while ($row = $result->fetch_assoc()): ?>
-    <tr>
-        <td><?= $row['nro_tramite'] ?></td>
-        <td><?= $row['cliente'] ?></td>
-        <td>
-            <a href="../procesos/verificaStock.php?nro=<?= $row['nro_tramite'] ?>">🛠️ Atender</a>
-        </td>
-    </tr>
-    <?php endwhile; ?>
-</table>
-<?php else: ?>
-    <p>No hay tareas pendientes por ahora.</p>
-<?php endif; ?>
+<div class="panel-almacen">
+    <h2>🏬 Tareas pendientes - ALMACÉN</h2>
 
-<p><a href="../logout.php">🔙 Cerrar sesión</a></p>
+    <p>
+        <a href="../procesos/recibeProducto.php">📦 Ver devoluciones aprobadas</a> |
+        <a href="../procesos/solicitaCompra.php">🛒 Solicitar compra a proveedor</a> |
+        <a href="../procesos/recibeCompra.php">📦 Confirmar recepción de productos</a>
+    </p>
+
+    <?php if ($result->num_rows > 0): ?>
+        <table>
+            <tr>
+                <th>N° Trámite</th>
+                <th>Cliente</th>
+                <th>Acción</th>
+            </tr>
+            <?php while ($row = $result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= $row['nro_tramite'] ?></td>
+                    <td><?= $row['cliente'] ?></td>
+                    <td>
+                        <a href="../flujo.php?flujo=F1_venta_cliente&proceso=verificaStock&nrotramite=<?= $row['nro_tramite'] ?>">🛠️ Atender</a>
+
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+    <?php else: ?>
+        <div class="warning">⚠️ No hay tareas pendientes por ahora.</div>
+    <?php endif; ?>
+
+    <p><a href="../logout.php">🔙 Cerrar sesión</a></p>
+</div>
+
+</body>
+</html>

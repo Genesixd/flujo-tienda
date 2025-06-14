@@ -1,3 +1,4 @@
+<!-- login.php -->
 <?php
 session_start();
 include "conectar.inc.php";
@@ -17,15 +18,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["rol"] = $row["rol"];
         header("Location: menu.php");
     } else {
-        echo "❌ Usuario o contraseña incorrectos.";
+        echo "<div class='error'>❌ Usuario o contraseña incorrectos.</div>";
     }
 }
 ?>
 
-<form method="POST">
-    <label>Usuario:</label>
-    <input type="text" name="usuario" required><br>
-    <label>Contraseña:</label>
-    <input type="password" name="contraseña" required><br>
-    <input type="submit" value="Ingresar">
-</form>
+<link rel="stylesheet" href="css/estilos.css">
+
+<div class="panel-login">
+    <h2>🔐 Iniciar Sesión</h2>
+    <form method="POST">
+        <label>Usuario:</label>
+        <input type="text" name="usuario" required>
+
+        <label>Contraseña:</label>
+        <input type="password" name="contraseña" required>
+
+        <input type="submit" value="Ingresar">
+    </form>
+</div>

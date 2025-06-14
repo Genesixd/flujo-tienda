@@ -2,17 +2,30 @@
 session_start();
 
 if ($_SESSION["rol"] !== "CLIENTE") {
-    echo "<p style='color:red;'>❌ Acceso denegado.</p>";
+    echo "<div class='error'>❌ Acceso denegado.</div>";
     exit;
 }
 ?>
 
-<h2>👤 Bienvenido, <?= $_SESSION["usuario"] ?> (Cliente)</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Cliente</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
 
-<ul>
-  <li><a href="../procesos/seleccionaProducto.php">🛒 Hacer nuevo pedido</a></li>
-  <li><a href="mis_pedidos.php">📋 Ver mis pedidos</a></li>
-  <li><a href="../logout.php">🔙 Cerrar sesión</a></li>
-  <li><a href="../procesos/solicitaDevolucion.php">🔁 Solicitar devolución</a></li>
+<div class="panel-cliente">
+    <h2>👤 Bienvenido, <?= $_SESSION["usuario"] ?> (Cliente)</h2>
 
-</ul>
+    <ul>
+        <li><a href="../procesos/seleccionaProducto.php">🛒 Hacer nuevo pedido</a></li>
+        <li><a href="mis_pedidos.php">📋 Ver mis pedidos</a></li>
+        <li><a href="../procesos/solicitaDevolucion.php">🔁 Solicitar devolución</a></li>
+        <li><a href="../logout.php">🔙 Cerrar sesión</a></li>
+    </ul>
+</div>
+
+</body>
+</html>

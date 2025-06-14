@@ -1,0 +1,179 @@
+/* ====== RESET GENERAL ====== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ====== CUERPO Y FUENTE ====== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
+}
+
+/* ====== CONTENEDORES ====== */
+.panel-cliente,
+.panel-vendedor,
+.panel-almacen,
+.panel-cajero {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.panel-cliente {
+    background: #e3f2fd;
+    border-left: 6px solid #2196f3;
+}
+
+.panel-vendedor {
+    background: #e8f5e9;
+    border-left: 6px solid #4caf50;
+}
+
+.panel-almacen {
+    background: #fffde7;
+    border-left: 6px solid #fbc02d;
+}
+
+.panel-cajero {
+    background: #fce4ec;
+    border-left: 6px solid #ec407a;
+}
+
+/* ====== TITULOS Y PÁRRAFOS ====== */
+h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+/* ====== ENLACES Y BOTONES ====== */
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button,
+input[type="submit"] {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #388e3c;
+}
+
+/* ====== TABLAS ====== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #007acc;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* ====== FORMULARIOS ====== */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* ====== MENSAJES ====== */
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-left: 5px solid #28a745;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-left: 5px solid #dc3545;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 12px;
+    border-left: 5px solid #ffc107;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* ====== LISTAS ====== */
+ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+ul li {
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+.panel-login {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-left: 6px solid #007acc;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-left: 5px solid #28a745;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}

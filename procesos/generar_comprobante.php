@@ -1,52 +1,65 @@
 <?php
-require('../fpdf/fpdf.php');
+require_once("../fpdf/fpdf.php");
+
 include "../conectar.inc.php";
 
-$nrotramite = $_GET['nro'] ?? null;
+$nrotramite = $_GET["nro"] ?? null;
 if (!$nrotramite) {
     die("❌ Trámite no especificado.");
 }
 
-// Obtener información del trámite
-$query = "
-SELECT u.usuario AS cliente, p.nombre, p.precio, d.cantidad,
-       (p.precio * d.cantidad) AS total,
-       t.fecha_inicio, f.observacion, f.usuario AS cajero
-FROM tramite t
-JOIN usuario u ON u.id = t.cliente_id
-JOIN detalle_pedido d ON d.nro_tramite = t.nro_tramite
-JOIN producto p ON p.id = d.producto_id
-JOIN flujoseguimiento f ON f.nro_tramite = t.nro_tramite AND f.proceso = 'cobraCliente'
-WHERE t.nro_tramite = $nrotramite
-LIMIT 1
-";
+// Obtener datos del cliente y la venta
+$tramite = $conn->query("
+    SELECT u.usuario AS cliente, t.fecha_inicio
+    FROM tramite t
+    JOIN usuario u ON u.id = t.cliente_id
+    WHERE t.nro_tramite = $nrotramite
+")->fetch_assoc();
 
-$res = $conn->query($query);
-$data = $res->fetch_assoc();
+$detalle = $conn->query("
+    SELECT p.nombre, d.cantidad, p.precio, (p.precio * d.cantidad) AS total
+    FROM detalle_pedido d
+    JOIN producto p ON p.id = d.producto_id
+    WHERE d.nro_tramite = $nrotramite
+")->fetch_assoc();
 
-if (!$data) {
-    die("❌ No se encontraron datos del trámite.");
+if (!$tramite || !$detalle) {
+    die("❌ Datos no encontrados.");
 }
 
 // Crear PDF
 $pdf = new FPDF();
 $pdf->AddPage();
-$pdf->SetFont('Arial','B',16);
-$pdf->Cell(0,10,utf8_decode('🧾 Comprobante de Venta'),0,1,'C');
+$pdf->SetFont('Arial', 'B', 16);
+
+// Título
+$pdf->Cell(0, 10, "Comprobante de Venta", 0, 1, 'C');
 $pdf->Ln(5);
 
-$pdf->SetFont('Arial','',12);
-$pdf->Cell(0,10,'N° de Trámite: ' . $nrotramite,0,1);
-$pdf->Cell(0,10,'Cliente: ' . $data['cliente'],0,1);
-$pdf->Cell(0,10,'Fecha: ' . $data['fecha_inicio'],0,1);
-$pdf->Cell(0,10,'Producto: ' . $data['nombre'],0,1);
-$pdf->Cell(0,10,'Cantidad: ' . $data['cantidad'],0,1);
-$pdf->Cell(0,10,'Precio unitario: Bs ' . $data['precio'],0,1);
-$pdf->Cell(0,10,'Total: Bs ' . $data['total'],0,1);
-$pdf->Cell(0,10,'Método de pago: ' . $data['observacion'],0,1);
-$pdf->Cell(0,10,'Cajero: ' . $data['cajero'],0,1);
+// Info general
+$pdf->SetFont('Arial', '', 12);
+$pdf->Cell(0, 10, "Trámite Nro: $nrotramite", 0, 1);
+$pdf->Cell(0, 10, "Cliente: " . $tramite['cliente'], 0, 1);
+$pdf->Cell(0, 10, "Fecha: " . $tramite['fecha_inicio'], 0, 1);
+$pdf->Ln(5);
 
-$pdf->Ln(10);
-$pdf->Cell(0,10,'Gracias por su compra.',0,1,'C');
+// Detalles de la venta
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(80, 10, "Producto", 1);
+$pdf->Cell(30, 10, "Cantidad", 1);
+$pdf->Cell(30, 10, "Precio", 1);
+$pdf->Cell(40, 10, "Total", 1);
+$pdf->Ln();
 
-$pdf->Output();
+$pdf->SetFont('Arial', '', 12);
+$pdf->Cell(80, 10, $detalle['nombre'], 1);
+$pdf->Cell(30, 10, $detalle['cantidad'], 1);
+$pdf->Cell(30, 10, number_format($detalle['precio'], 2), 1);
+$pdf->Cell(40, 10, number_format($detalle['total'], 2), 1);
+$pdf->Ln(20);
+
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(0, 10, "Gracias por su compra", 0, 1, 'C');
+
+// Salida del PDF
+$pdf->Output("I", "Comprobante_Tramite_$nrotramite.pdf");
