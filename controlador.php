@@ -109,7 +109,7 @@ if ($flujo === "F1_venta_cliente" && $proceso === "cobraCliente" && $rol === "CA
 
     echo "<div style='padding:20px;text-align:center;font-family:sans-serif;'>
             <h3 style='color:green;'>✅ Trámite finalizado correctamente.</h3>
-            <a href='/procesos/generar_comprobante.php?nro=$nrotramite' target='_blank'>📄 Descargar comprobante en PDF</a>
+            <a href='procesos/generar_comprobante.php?nro=$nrotramite' target='_blank'>📄 Descargar comprobante en PDF</a>
 
             <a href='usuarios/cajero.php' style='padding:10px 20px;background-color:#4CAF50;color:white;border-radius:5px;text-decoration:none;'>⬅️ Volver al panel</a>
             <a href='logout.php' style='padding:10px 20px;background-color:#f44336;color:white;border-radius:5px;text-decoration:none;'>🔙 Cerrar sesión</a>
