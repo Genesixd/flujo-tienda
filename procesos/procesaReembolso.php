@@ -51,15 +51,18 @@ $result = $conn->query($query);
         <td><?= $row['motivo'] ?></td>
         <td><?= $row['fecha'] ?></td>
         <td>
-            <form method="POST" style="display:inline;">
-                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                <select name="metodo" required>
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="QR">QR</option>
-                    <option value="TARJETA">Tarjeta</option>
-                </select>
-                <button type="submit">💰 Reembolsar</button>
-            </form>
+            <<form method="POST" action="../controlador.php" style="display:inline;">
+    <input type="hidden" name="flujo" value="F3_devolucion">
+    <input type="hidden" name="proceso" value="procesaReembolso">
+    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+    <select name="metodo" required>
+        <option value="EFECTIVO">Efectivo</option>
+        <option value="QR">QR</option>
+        <option value="TARJETA">Tarjeta</option>
+    </select>
+    <button type="submit">💰 Reembolsar</button>
+</form>
+
         </td>
     </tr>
     <?php endwhile; ?>

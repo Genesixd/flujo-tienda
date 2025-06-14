@@ -117,7 +117,170 @@ if ($flujo === "F1_venta_cliente" && $proceso === "cobraCliente" && $rol === "CA
     exit;
 }
 
+// ========== ALMACÉN solicita compra a proveedor ==========
+if ($flujo === "F2_compra_proveedor" && $proceso === "solicitaCompra" && $rol === "ALMACEN") {
+    $producto_id = $_POST["producto_id"] ?? null;
+    $cantidad = $_POST["cantidad"] ?? null;
+    $motivo = $_POST["motivo"] ?? null;
+
+    if (!$producto_id || !$cantidad || !$motivo) {
+        echo "<p style='color:red;'>❌ Faltan datos en la solicitud.</p>";
+        exit;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO compra (producto_id, cantidad, motivo) VALUES (?, ?, ?)");
+    $stmt->bind_param("iis", $producto_id, $cantidad, $motivo);
+    $stmt->execute();
+
+    echo "<div style='padding:20px; text-align:center; font-family:sans-serif;'>
+            <h3 style='color:green;'>✅ Solicitud de compra registrada correctamente.</h3>
+            <a href='usuarios/almacen.php' style='padding:10px 20px; background-color:#4CAF50; color:white; border-radius:5px; text-decoration:none;'>⬅️ Volver al panel</a>
+            <a href='logout.php' style='padding:10px 20px; background-color:#f44336; color:white; border-radius:5px; text-decoration:none;'>🔙 Cerrar sesión</a>
+          </div>";
+    exit;
+}
 
 
    
 
+// ========== ALMACEN recibe productos del proveedor ==========
+if ($flujo === "F2_compra_proveedor" && $proceso === "recibeCompra" && $rol === "ALMACEN") {
+    $compra_id   = $_POST["compra_id"] ?? null;
+    $producto_id = $_POST["producto_id"] ?? null;
+    $cantidad    = $_POST["cantidad"] ?? 0;
+
+    if (!$compra_id || !$producto_id || $cantidad <= 0) {
+        echo "<p style='color:red;'>❌ Datos inválidos para confirmar recepción.</p>";
+        exit;
+    }
+
+    // 1. Actualizar estado de la compra
+    $conn->query("UPDATE compra SET estado = 'ENTREGADA' WHERE id = $compra_id");
+
+    // 2. Aumentar el stock
+    $conn->query("UPDATE producto SET stock = stock + $cantidad WHERE id = $producto_id");
+
+    echo "<div style='padding:20px;text-align:center;font-family:sans-serif;'>
+            <h3 style='color:green;'>✅ Productos recibidos correctamente.</h3>
+            <a href='usuarios/almacen.php' style='padding:10px 20px;background-color:#4CAF50;color:white;border-radius:5px;text-decoration:none;'>⬅️ Volver al panel</a>
+            <a href='logout.php' style='padding:10px 20px;background-color:#f44336;color:white;border-radius:5px;text-decoration:none;'>🔙 Cerrar sesión</a>
+          </div>";
+    exit;
+}
+// ========== ADMIN o VENDEDOR aprueba o rechaza compra ==========
+if ($flujo === "F2_compra_proveedor" && $proceso === "apruebaCompra" && in_array($rol, ["ADMIN", "VENDEDOR"])) {
+    $id     = $_POST["id"] ?? null;
+    $accion = $_POST["accion"] ?? null;
+
+    if (!$id || !$accion) {
+        echo "<p style='color:red;'>❌ Datos incompletos.</p>";
+        exit;
+    }
+
+    if ($accion === "aprobar") {
+        $conn->query("UPDATE compra SET estado = 'APROBADA' WHERE id = $id");
+        echo "<p style='color:green;'>✅ Solicitud de compra aprobada.</p>";
+    } elseif ($accion === "rechazar") {
+        $conn->query("UPDATE compra SET estado = 'RECHAZADA' WHERE id = $id");
+        echo "<p style='color:orange;'>❌ Solicitud de compra rechazada.</p>";
+    }
+
+    echo "<p><a href='procesos/apruebaCompra.php'>🔄 Volver a la lista</a></p>";
+    echo "<p><a href='menu.php'>⬅️ Menú principal</a></p>";
+    exit;
+}
+// ========== CLIENTE solicita devolución ==========
+if ($flujo === "F3_devolucion" && $proceso === "solicitaDevolucion" && $rol === "CLIENTE") {
+    $nro    = $_POST["nro_tramite"] ?? null;
+    $motivo = trim($_POST["motivo"] ?? '');
+
+    if (!$nro || !$motivo) {
+        echo "<p style='color:red;'>❌ Datos incompletos.</p>";
+        exit;
+    }
+
+    $yaExiste = $conn->query("SELECT 1 FROM devolucion WHERE nro_tramite = $nro");
+    if ($yaExiste->num_rows > 0) {
+        echo "<p style='color:red;'>❌ Ya existe una solicitud de devolución para este trámite.</p>";
+    } else {
+        $conn->query("INSERT INTO devolucion (nro_tramite, motivo) VALUES ($nro, '$motivo')");
+        echo "<p style='color:green;'>✅ Solicitud de devolución enviada correctamente.</p>";
+    }
+
+    echo "<p><a href='procesos/solicitaDevolucion.php'>🔁 Volver a Devolución</a></p>";
+    echo "<p><a href='usuarios/cliente.php'>⬅️ Volver al panel</a></p>";
+    echo "<p><a href='logout.php'>🔙 Cerrar sesión</a></p>";
+    exit;
+}
+// ========== VENDEDOR aprueba devolución ==========
+if ($flujo === "F3_devolucion" && $proceso === "apruebaDevolucion" && $rol === "VENDEDOR") {
+    $id     = $_POST["id"] ?? null;
+    $accion = $_POST["accion"] ?? '';
+
+    if (!$id || !in_array($accion, ["APROBADA", "RECHAZADA"])) {
+        echo "<p style='color:red;'>❌ Parámetros inválidos.</p>";
+        exit;
+    }
+
+    $conn->query("UPDATE devolucion SET estado = '$accion' WHERE id = $id");
+
+    echo "<p style='color:green;'>✅ Devolución $accion correctamente.</p>";
+    echo "<p><a href='procesos/apruebaDevolucion.php'>⬅️ Volver a solicitudes</a></p>";
+    echo "<p><a href='usuarios/vendedor.php'>🏠 Panel Vendedor</a></p>";
+    echo "<p><a href='logout.php'>🔙 Cerrar sesión</a></p>";
+    exit;
+}
+// ========== ALMACÉN recibe producto devuelto ==========
+if ($flujo === "F3_devolucion" && $proceso === "recibeProducto" && $rol === "ALMACEN") {
+    $id = $_POST["id"] ?? null;
+
+    if (!$id) {
+        echo "<p style='color:red;'>❌ Falta el ID de devolución.</p>";
+        exit;
+    }
+
+    $conn->query("UPDATE devolucion SET estado = 'FINALIZADA' WHERE id = $id");
+
+    echo "<p style='color:green;'>✅ Producto recibido correctamente y devolución finalizada.</p>";
+    echo "<p><a href='procesos/recibeProducto.php'>⬅️ Volver</a></p>";
+    echo "<p><a href='usuarios/almacen.php'>🏠 Panel Almacén</a></p>";
+    echo "<p><a href='logout.php'>🔙 Cerrar sesión</a></p>";
+    exit;
+}
+// ========== CAJERO procesa reembolso ==========
+if ($flujo === "F3_devolucion" && $proceso === "procesaReembolso" && $rol === "CAJERO") {
+    $id = $_POST["id"] ?? null;
+    $metodo = $_POST["metodo"] ?? null;
+
+    if (!$id || !$metodo) {
+        echo "<p style='color:red;'>❌ Faltan datos.</p>";
+        exit;
+    }
+
+    $conn->query("UPDATE devolucion SET estado = 'REEMBOLSADO' WHERE id = $id");
+
+    echo "<p style='color:green;'>✅ Reembolso procesado exitosamente por $metodo.</p>";
+    echo "<p><a href='procesos/procesaReembolso.php'>⬅️ Volver</a></p>";
+    echo "<p><a href='usuarios/cajero.php'>🏠 Panel Cajero</a></p>";
+    echo "<p><a href='logout.php'>🔙 Cerrar sesión</a></p>";
+    exit;
+}
+// ========== CAJERO paga proveedor ==========
+if ($flujo === "F2_compra_proveedor" && $proceso === "pagaProveedor" && $rol === "CAJERO") {
+    $compra_id   = $_POST["compra_id"] ?? null;
+    $metodo_pago = $_POST["metodo_pago"] ?? null;
+
+    if (!$compra_id || !$metodo_pago) {
+        echo "<p style='color:red;'>❌ Faltan datos para procesar el pago.</p>";
+        exit;
+    }
+
+    $conn->query("UPDATE compra SET estado = 'PAGADA' WHERE id = $compra_id");
+
+    echo "<div style='padding:20px;text-align:center;font-family:sans-serif;'>
+            <h3 style='color:green;'>✅ Pago registrado exitosamente por $metodo_pago.</h3>
+            <a href='usuarios/cajero.php' style='padding:10px 20px;background-color:#4CAF50;color:white;border-radius:5px;text-decoration:none;'>⬅️ Volver al panel</a>
+            <a href='logout.php' style='padding:10px 20px;background-color:#f44336;color:white;border-radius:5px;text-decoration:none;'>🔙 Cerrar sesión</a>
+          </div>";
+    exit;
+}

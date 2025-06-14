@@ -55,11 +55,14 @@ $result = $conn->query($query);
         <td><?= $row['motivo'] ?></td>
         <td><?= $row['fecha'] ?></td>
         <td>
-            <form method="POST" style="display:inline;">
+            <form method="POST" action="../controlador.php" style="display:inline;">
+                <input type="hidden" name="flujo" value="F2_compra_proveedor">
+                <input type="hidden" name="proceso" value="apruebaCompra">
                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                 <button type="submit" name="accion" value="aprobar">✅ Aprobar</button>
                 <button type="submit" name="accion" value="rechazar">❌ Rechazar</button>
             </form>
+
         </td>
     </tr>
     <?php endwhile; ?>

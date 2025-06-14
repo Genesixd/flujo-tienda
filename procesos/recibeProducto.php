@@ -51,10 +51,14 @@ $result = $conn->query($query);
         <td><?= $row['motivo'] ?></td>
         <td><?= $row['fecha'] ?></td>
         <td>
-            <form method="POST" style="display:inline;">
-                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                <button type="submit">📦 Confirmar recepción</button>
-            </form>
+                <form method="POST" action="../controlador.php" style="display:inline;">
+            <input type="hidden" name="flujo" value="F3_devolucion">
+            <input type="hidden" name="proceso" value="recibeProducto">
+            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+            <button type="submit">📦 Confirmar recepción</button>
+        </form>
+
+
         </td>
     </tr>
     <?php endwhile; ?>

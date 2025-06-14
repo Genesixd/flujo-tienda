@@ -47,7 +47,10 @@ $result = $conn->query($query);
 <?= $mensaje ?>
 
 <?php if ($result->num_rows > 0): ?>
-<form method="POST">
+<form method="POST" action="../controlador.php">
+    <input type="hidden" name="flujo" value="F3_devolucion">
+    <input type="hidden" name="proceso" value="solicitaDevolucion">
+
     <label>Seleccione el trámite:</label>
     <select name="nro_tramite" required>
         <?php while ($row = $result->fetch_assoc()): ?>
@@ -60,6 +63,7 @@ $result = $conn->query($query);
 
     <input type="submit" value="Enviar solicitud">
 </form>
+
 <?php else: ?>
     <p>No tienes trámites finalizados disponibles para devolución.</p>
 <?php endif; ?>

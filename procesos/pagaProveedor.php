@@ -48,15 +48,21 @@ $result = $conn->query($sql);
         <td><?= $row['cantidad'] ?></td>
         <td><?= $row['fecha'] ?></td>
         <td>
-            <form method="POST" style="display:inline;">
-                <input type="hidden" name="compra_id" value="<?= $row['id'] ?>">
-                <select name="metodo_pago" required>
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="QR">QR</option>
-                    <option value="TARJETA">Tarjeta</option>
-                </select>
-                <button type="submit">💳 Pagar</button>
-            </form>
+            <form method="POST" action="../controlador.php" style="display:inline;">
+    <input type="hidden" name="flujo" value="F2_compra_proveedor">
+    <input type="hidden" name="proceso" value="pagaProveedor">
+    <input type="hidden" name="compra_id" value="<?= $row['id'] ?>">
+
+    <select name="metodo_pago" required>
+        <option value="">-- Seleccione método --</option>
+        <option value="EFECTIVO">Efectivo</option>
+        <option value="QR">QR</option>
+        <option value="TARJETA">Tarjeta</option>
+    </select>
+
+    <button type="submit">💳 Pagar</button>
+</form>
+
         </td>
     </tr>
     <?php endwhile; ?>

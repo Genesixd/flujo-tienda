@@ -9,20 +9,6 @@ if ($_SESSION["rol"] !== "ALMACEN") {
 
 $mensaje = "";
 
-// Guardar solicitud
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $producto_id = $_POST["producto_id"];
-    $cantidad = $_POST["cantidad"];
-    $motivo = $_POST["motivo"];
-
-    $sql = "INSERT INTO compra (producto_id, cantidad, motivo) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iis", $producto_id, $cantidad, $motivo);
-    $stmt->execute();
-
-    $mensaje = "<p style='color:green;'>✅ Solicitud de compra registrada correctamente.</p>";
-}
-
 // Obtener lista de productos
 $productos = $conn->query("SELECT id, nombre, stock FROM producto");
 ?>
@@ -31,7 +17,10 @@ $productos = $conn->query("SELECT id, nombre, stock FROM producto");
 
 <?= $mensaje ?>
 
-<form method="POST">
+<form method="POST" action="../controlador.php">
+    <input type="hidden" name="flujo" value="F2_compra_proveedor">
+    <input type="hidden" name="proceso" value="solicitaCompra">
+
     <label>Producto:</label>
     <select name="producto_id" required>
         <option value="">-- Seleccione --</option>

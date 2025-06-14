@@ -53,12 +53,15 @@ $result = $conn->query($sql);
         <td><?= $row['cantidad'] ?></td>
         <td><?= $row['fecha'] ?></td>
         <td>
-            <form method="POST">
+            <form method="POST" action="../controlador.php">
+                <input type="hidden" name="flujo" value="F2_compra_proveedor">
+                <input type="hidden" name="proceso" value="recibeCompra">
                 <input type="hidden" name="compra_id" value="<?= $row['id'] ?>">
                 <input type="hidden" name="producto_id" value="<?= $row['producto_id'] ?>">
                 <input type="hidden" name="cantidad" value="<?= $row['cantidad'] ?>">
                 <button type="submit">📥 Confirmar recepción</button>
             </form>
+
         </td>
     </tr>
     <?php endwhile; ?>
